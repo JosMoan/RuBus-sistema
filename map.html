@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa-Rubus</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body, html {
+            height: 104%; /* tamaño de largo de la barra lateral */
+            margin: 0;
+            display: flex;
+            flex-direction: row;
+            background-color: #f0f0f0;
+        }
+        .sidebar {
+            width: 20%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px; /* tamaño del ancho de la barra lateral */
+            background: url('Paradero.png') no-repeat center center; /* Imagen de fondo */
+            background-size: cover; /* Asegura que la imagen cubra toda el área */
+            box-shadow: 0 0 10px rgba(73, 59, 59, 0.1);
+            justify-content: space-between; /* Distribuir el espacio entre elementos */
+        }
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .logo-container img {
+            width: 70px; /* Ajusta el tamaño del logo según sea necesario */
+            height: auto;
+            margin-right: 10px;
+        }
+        .logo-container h1 {
+            font-size: 50px;/* tamaño de las letras Rubus*/
+            color: white;
+            margin: 0;
+        }
+        .map-container {
+            width: 1075px;
+            height: 753px;
+        }
+        .search-container {
+            width: 120%; /* tamaño de botones y cajas de texto */
+        }
+        .search-container input[type=text] { 
+            width: calc(100% - 20px); /*tamaño de las cajas de texto*/
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+        .search-container button {
+            width: calc(108% - 20px); /* tamaño de los botones de ubi actual y busqueda ruta*/
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .logout-container { /*tamaño del boton de cerar sesion*/
+            width: 80%;
+        }
+        .logout-container button {
+            width: calc(100% - 20px);
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px; /*Forma del boton de cerrar sesion */
+            border: none;
+            background-color: #0d0d0d; /* Color rojo para el botón de cerrar sesión */
+            background: transparent;
+            border: 2px solid #fff;
+            color: white;
+            cursor: pointer;
+            margin-top: 350px; /*mvoimineto hacia abajo del boton de cerrar sesion */
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-container">
+            <img src="logoRubus.jpeg" alt="Logo de RuBus">
+            <h1>RuBus</h1>
+        </div>
+        <div class="search-container">
+            <input type="text" id="origin-input" placeholder="Selecciona un punto de partida">
+            <input type="text" id="destination-input" placeholder="Selecciona un destino">
+            <button onclick="setCurrentLocation()">Desde tu ubicación actual</button>
+            <button onclick="searchRoute()">Buscar ruta</button>
+        </div>
+        <div class="logout-container">
+            <button onclick="logout()">Cerrar sesión</button>
+        </div>
+    </div>
+    <div id="map" class="map-container"></div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([-12.0464, -77.0428], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        function setCurrentLocation() {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var lat = position.coords.latitude;
+                var lon = position.coords.longitude;
+                var currentLocation = lat + ", " + lon;
+                document.getElementById('origin-input').value = currentLocation;
+                map.setView(new L.LatLng(lat, lon), 13);
+                L.marker([lat, lon]).addTo(map)
+                    .bindPopup("Tu ubicación actual")
+                    .openPopup();
+            }, function(error) {
+                alert("No se pudo obtener tu ubicación actual.");
+            });
+        }
+
+        function searchRoute() {
+            var origin = document.getElementById('origin-input').value;
+            var destination = document.getElementById('destination-input').value;
+
+            if (!origin || !destination) {
+                alert("Por favor, ingresa tanto el punto de partida como el destino.");
+                return;
+            }
+
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${origin}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        var originLat = data[0].lat;
+                        var originLon = data[0].lon;
+
+                        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${destination}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.length > 0) {
+                                    var destinationLat = data[0].lat;
+                                    var destinationLon = data[0].lon;
+
+                                    map.setView(new L.LatLng((parseFloat(originLat) + parseFloat(destinationLat)) / 2, (parseFloat(originLon) + parseFloat(destinationLon)) / 2), 13);
+
+                                    L.marker([originLat, originLon]).addTo(map)
+                                        .bindPopup("Punto de partida")
+                                        .openPopup();
+                                    L.marker([destinationLat, destinationLon]).addTo(map)
+                                        .bindPopup("Destino")
+                                        .openPopup();
+
+                                    var route = L.polyline([
+                                        [originLat, originLon],
+                                        [destinationLat, destinationLon]
+                                    ], {
+                                        color: 'blue'
+                                    }).addTo(map);
+                                } else {
+                                    alert("Destino no encontrado.");
+                                }
+                            });
+                    } else {
+                        alert("Punto de partida no encontrado.");
+                    }
+                });
+        }
+
+        function logout() {
+            window.location.href = "index.html"; // Cambia "pagina_principal.html" por la URL de tu página principal
+        }
+    </script>
+</body>
+</html>
