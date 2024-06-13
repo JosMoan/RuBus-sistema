@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 
+/*https://prod.liveshare.vsengsaas.visualstudio.com/join?4DA154A001BDD4CAF4BFA8430824607302C7*/
 * {
     font-family: 'Poppins', sans-serif;
     margin: 0;
@@ -7,7 +8,7 @@
     box-sizing: border-box;
 }
 
-body {
+body { 
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -110,34 +111,14 @@ header {
     transform: scale(1);
 }
 
-.fondo.active {
-    height: 455px;
-}
-
 .fondo .contenedor-form {
     width: 100%;
     padding: 40px;
+    display: none;
 }
 
-.fondo .contenedor-form.login {
-    transition: transform 0.17s ease;
-    transform: translateX(0);
-}
-
-.fondo.active .contenedor-form.login {
-    transition: none;
-    transform: translateX(-400px);
-}
-
-.fondo .contenedor-form.registrar {
-    position: absolute;
-    transition: none;
-    transform: translateX(400px);
-}
-
-.fondo.active .contenedor-form.registrar {
-    transition: transform 0.17s ease;
-    transform: translateX(0);
+.fondo .contenedor-form.active {
+    display: block;
 }
 
 .fondo .icono-cerrar {
@@ -192,10 +173,15 @@ header {
     height: 100%;
     background: transparent;
     border: none;
-    outline: none;
+    outline: none; /* Remueve el borde por defecto del navegador */
     font-size: 1em;
     color: #F1EFEF;
     padding: 0 35px 0 5px;
+}
+
+/* Añadir un estilo de enfoque personalizado si se desea */
+.contenedor-input input:focus {
+    border-bottom: 2px solid #F1EFEF; /* O el color que prefieras */
 }
 
 .contenedor-input .icono {
@@ -299,6 +285,40 @@ header {
 
 .section-content ul li a:hover {
     text-decoration: underline;
+}
+
+/* Remover estilos de autofill en Chrome, Safari y Edge */
+input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 30px #090f1d inset !important; /* Cambia el color de fondo al color del fondo del input */
+    -webkit-text-fill-color: #F1EFEF !important; /* Cambia el color del texto al color del texto del input */
+    border: none !important; /* Remueve el borde */
+    outline: none !important; /* Remueve el borde de enfoque */
+}
+
+/* Remover estilos de autofill en Firefox */
+input:-moz-autofill {
+    box-shadow: 0 0 0 30px #090f1d inset !important; /* Cambia el color de fondo al color del fondo del input */
+    -moz-text-fill-color: #F1EFEF !important; /* Cambia el color del texto al color del texto del input */
+    border: none !important; /* Remueve el borde */
+    outline: none !important; /* Remueve el borde de enfoque */
+}
+
+/* Remover estilos de autofill en otros navegadores */
+input:-ms-autofill {
+    box-shadow: 0 0 0 30px #090f1d inset !important; /* Cambia el color de fondo al color del fondo del input */
+    -ms-text-fill-color: #F1EFEF !important; /* Cambia el color del texto al color del texto del input */
+    border: none !important; /* Remueve el borde */
+    outline: none !important; /* Remueve el borde de enfoque */
+}
+
+/* Estilo general para todos los input cuando están en autofill */
+input:-webkit-autofill,
+input:-moz-autofill,
+input:-ms-autofill {
+    transition: background-color 5000s ease-in-out 0s; /* Previene el cambio rápido de fondo */
+    -webkit-transition: background-color 5000s ease-in-out 0s;
+    -moz-transition: background-color 5000s ease-in-out 0s;
+    -ms-transition: background-color 5000s ease-in-out 0s;
 }
 
 
