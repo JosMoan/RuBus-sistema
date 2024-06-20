@@ -2,27 +2,27 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa-Rubus</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
         body, html {
-            height: 104%; /* tamaño de largo de la barra lateral */
+            height: 100%;
             margin: 0;
             display: flex;
-            flex-direction: row;
             background-color: #f0f0f0;
         }
         .sidebar {
-            width: 20%;
+            width: 25%;
             display: flex;
+            height: 666px;
             flex-direction: column;
             align-items: center;
-            padding: 50px; /* tamaño del ancho de la barra lateral */
-            background: url('Paradero.png') no-repeat center center; /* Imagen de fondo */
-            background-size: cover; /* Asegura que la imagen cubra toda el área */
+            padding: 40px; /Ancho del panel/
+            background: url('Paradero.png') no-repeat center center;
+            background-size: cover;
             box-shadow: 0 0 10px rgba(73, 59, 59, 0.1);
-            justify-content: space-between; /* Distribuir el espacio entre elementos */
+            justify-content: space-between;
         }
         .logo-container {
             display: flex;
@@ -30,64 +30,104 @@
             justify-content: center;
             margin-bottom: 20px;
         }
-        .logo-container img {
-            width: 70px; /* Ajusta el tamaño del logo según sea necesario */
+        .logo-container img { /Logo Rubus/
+            width: 120px;
             height: auto;
             margin-right: 10px;
         }
         .logo-container h1 {
-            font-size: 50px;/* tamaño de las letras Rubus*/
+            font-size: 45px;
             color: white;
             margin: 0;
         }
-        .map-container {
-            width: 1075px;
-            height: 753px;
+        .map-container { /Tamaño del mapa/
+            width: 1045px;
+            height: 736px;
         }
         .search-container {
-            width: 120%; /* tamaño de botones y cajas de texto */
+            width: 100%;
+            margin-bottom: 25px;
         }
-        .search-container input[type=text] { 
-            width: calc(100% - 20px); /*tamaño de las cajas de texto*/
-            padding: 10px;
+        .search-container input[type=text] {
+            width: calc(80% - 20px);
+            padding: 12px;
             font-size: 16px;
-            border-radius: 5px;
+            border-radius: 20px;
             border: 1px solid #ccc;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            margin-left: 30px;
         }
         .search-container button {
-            width: calc(108% - 20px); /* tamaño de los botones de ubi actual y busqueda ruta*/
+            width: 80%;
             padding: 10px;
             font-size: 16px;
             border-radius: 5px;
             border: none;
-            background-color: #4CAF50;
-            color: white;
-            cursor: pointer;
-            margin-bottom: 10px;
-        }
-        .logout-container { /*tamaño del boton de cerar sesion*/
-            width: 80%;
-        }
-        .logout-container button {
-            width: calc(100% - 20px);
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 5px; /*Forma del boton de cerrar sesion */
-            border: none;
-            background-color: #0d0d0d; /* Color rojo para el botón de cerrar sesión */
             background: transparent;
             border: 2px solid #fff;
-            color: white;
             cursor: pointer;
-            margin-top: 350px; /*mvoimineto hacia abajo del boton de cerrar sesion */
+            color: white;
+            font-weight: 600;
+            margin-bottom: 15px;
+            margin-left: 30px;
+        }
+        .search-container button:hover {
+            background: #fff;
+            color: #090f1d;
+        }
+        .logout-container {
+            width: 100%;
+        }
+        .logout-container button {
+            width: calc(50% - 20px);
+            padding: 10px;
+            font-size: 16px;
+            width: 140px;
+            height: 50px;
+            background: transparent;
+            border: 2px solid #fff;
+            cursor: pointer;
+            font-size: 1.1rem;
+            color: #fff;
+            font-weight: 600;
+            margin-left: 102px;
+        }
+        .logout-container button:hover {
+            background: #fff;
+            color: #090f1d;
+        }
+        .results-container {
+            width: 100%;
+            color: white;
+            margin-top: 20px;
+        }
+        .results-container h2 {
+            text-align: center;
+            font-size: 24px;
+        }
+        .results-container ul {
+            list-style: none;
+            padding: 0;
+        }
+        .results-container li {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+        }
+        .results-container li img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
         }
     </style>
 </head>
 <body>
     <div class="sidebar">
         <div class="logo-container">
-            <img src="logoRubus.jpeg" alt="Logo de RuBus">
+            <img src="logoRubus.png" alt="Logo de RuBus" title="Logo - Rubus">
             <h1>RuBus</h1>
         </div>
         <div class="search-container">
@@ -95,86 +135,169 @@
             <input type="text" id="destination-input" placeholder="Selecciona un destino">
             <button onclick="setCurrentLocation()">Desde tu ubicación actual</button>
             <button onclick="searchRoute()">Buscar ruta</button>
+            <button onclick="clearInputs()">Limpiar</button>
         </div>
         <div class="logout-container">
             <button onclick="logout()">Cerrar sesión</button>
         </div>
+        <div class="results-container">
+            <h2>Opciones de Transporte</h2>
+            <ul id="results"></ul>
+        </div>
     </div>
     <div id="map" class="map-container"></div>
-
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBh8KsrFnUukfeHrPxKu8zwZnnzd6sDWBo&libraries=places&callback=initMap">
+    </script>
     <script>
-        var map = L.map('map').setView([-12.0464, -77.0428], 13);
+        let map;
+        let marker;
+        let originAutocomplete;
+        let destinationAutocomplete;
+        let directionsService;
+        let directionsRenderer;
+        
+        function initMap() {
+            const perCoords = { lat: -12.0, lng: -77.0 };
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: perCoords,
+                zoom: 13
+            });
+
+            marker = new google.maps.Marker({
+                position: perCoords,
+                map: map
+            });
+
+            const originInput = document.getElementById('origin-input');
+            const destinationInput = document.getElementById('destination-input');
+
+            originAutocomplete = new google.maps.places.Autocomplete(originInput);
+            destinationAutocomplete = new google.maps.places.Autocomplete(destinationInput);
+            
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer();
+            directionsRenderer.setMap(map);
+        }
+
+        function clearMap() {
+            if (marker) {
+                marker.setMap(null);
+                marker = null;
+            }
+            directionsRenderer.setDirections({ routes: [] });
+        }
 
         function setCurrentLocation() {
+            clearMap();
             navigator.geolocation.getCurrentPosition(function(position) {
-                var lat = position.coords.latitude;
-                var lon = position.coords.longitude;
-                var currentLocation = lat + ", " + lon;
-                document.getElementById('origin-input').value = currentLocation;
-                map.setView(new L.LatLng(lat, lon), 13);
-                L.marker([lat, lon]).addTo(map)
-                    .bindPopup("Tu ubicación actual")
-                    .openPopup();
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+
+                const geocoder = new google.maps.Geocoder();
+                const latlng = new google.maps.LatLng(lat, lon);
+                geocoder.geocode({ 'location': latlng }, function(results, status) {
+                    if (status === 'OK') {
+                        if (results[0]) {
+                            const address = results[0].formatted_address;
+                            document.getElementById('origin-input').value = address;
+
+                            map.setCenter(new google.maps.LatLng(lat, lon));
+                            map.setZoom(13);
+
+                            marker = new google.maps.Marker({
+                                position: { lat, lng: lon },
+                                map: map,
+                                title: "Origen: " + address
+                            });
+                        } else {
+                            alert('No se encontraron resultados.');
+                        }
+                    } else {
+                        alert('Geocoder falló debido a: ' + status);
+                    }
+                });
             }, function(error) {
                 alert("No se pudo obtener tu ubicación actual.");
             });
         }
 
         function searchRoute() {
-            var origin = document.getElementById('origin-input').value;
-            var destination = document.getElementById('destination-input').value;
+            const origin = document.getElementById('origin-input').value;
+            const destination = document.getElementById('destination-input').value;
 
             if (!origin || !destination) {
                 alert("Por favor, ingresa tanto el punto de partida como el destino.");
                 return;
             }
 
-            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${origin}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.length > 0) {
-                        var originLat = data[0].lat;
-                        var originLon = data[0].lon;
+            clearMap();
 
-                        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${destination}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.length > 0) {
-                                    var destinationLat = data[0].lat;
-                                    var destinationLon = data[0].lon;
+            const request = {
+                origin: origin,
+                destination: destination,
+                travelMode: 'TRANSIT',
+                transitOptions: {
+                    modes: ['BUS'],
+                }
+            };
 
-                                    map.setView(new L.LatLng((parseFloat(originLat) + parseFloat(destinationLat)) / 2, (parseFloat(originLon) + parseFloat(destinationLon)) / 2), 13);
+            directionsService.route(request, function(result, status) {
+                if (status === 'OK') {
+                    directionsRenderer.setDirections(result);
+                    displayTransitDetails(result);
+                } else {
+                    alert("No se pudo encontrar una ruta.");
+                }
+            });
+        }
 
-                                    L.marker([originLat, originLon]).addTo(map)
-                                        .bindPopup("Punto de partida")
-                                        .openPopup();
-                                    L.marker([destinationLat, destinationLon]).addTo(map)
-                                        .bindPopup("Destino")
-                                        .openPopup();
+        function displayTransitDetails(result) {
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = '';
+            const steps = result.routes[0].legs[0].steps;
 
-                                    var route = L.polyline([
-                                        [originLat, originLon],
-                                        [destinationLat, destinationLon]
-                                    ], {
-                                        color: 'blue'
-                                    }).addTo(map);
-                                } else {
-                                    alert("Destino no encontrado.");
-                                }
-                            });
-                    } else {
-                        alert("Punto de partida no encontrado.");
-                    }
-                });
+            steps.forEach(step => {
+                if (step.transit) {
+                    const busImage = getBusImage(step.transit.line.short_name);
+                    const busInfo = `
+                        <li>
+                            <img src="${busImage}" alt="Bus ${step.transit.line.short_name}">
+                            <div>
+                                <strong>Bus: ${step.transit.line.short_name}</strong><br>
+                                De: ${step.transit.departure_stop.name}<br>
+                                A: ${step.transit.arrival_stop.name}<br>
+                                Duración: ${step.duration.text}
+                            </div>
+                        </li>
+                    `;
+                    resultsContainer.insertAdjacentHTML('beforeend', busInfo);
+                }
+            });
+        }
+
+        function getBusImage(busNumber) {
+            // Aquí puedes definir las rutas de las imágenes según el número de bus
+            // Por ejemplo:
+            switch(busNumber) {
+                case '1': return 'bus1.png';
+                case '2': return 'bus2.png';
+                case '3': return 'bus3.png';
+                // Añadir más casos según sea necesario
+                default: return 'default_bus.png';
+            }
+        }
+
+        function clearInputs() {
+            document.getElementById('origin-input').value = '';
+            document.getElementById('destination-input').value = '';
+            clearMap(); // También limpiar el mapa
+            document.getElementById('results').innerHTML = ''; // Limpiar resultados de opciones de transporte
         }
 
         function logout() {
-            window.location.href = "index.html"; // Cambia "pagina_principal.html" por la URL de tu página principal
+            window.location.href = "index.html";
         }
     </script>
 </body>
