@@ -6,32 +6,38 @@ document.addEventListener("DOMContentLoaded", () => {
     const iconoCerrar = document.querySelector(".icono-cerrar");
     const navLinks = document.querySelectorAll(".nav-link");
     const sections = document.querySelectorAll(".section-content");
-    const loginForm = document.querySelector("form[action='#']"); // Selecciona el formulario de inicio de sesión
+    const loginForm = document.querySelector(".contenedor-form.login");
+    const registerForm = document.querySelector(".contenedor-form.registrar");
 
     if (registrarLink) {
-        registrarLink.addEventListener("click", () => {
-            fondo.classList.add('active');
-            fondo.classList.remove('active-btn');
+        registrarLink.addEventListener("click", (event) => {
+            event.preventDefault();
+            loginForm.classList.remove('active');
+            registerForm.classList.add('active');
         });
     }
 
     if (loginLink) {
-        loginLink.addEventListener("click", () => {
-            fondo.classList.remove('active');
-            fondo.classList.add('active-btn');
+        loginLink.addEventListener("click", (event) => {
+            event.preventDefault();
+            registerForm.classList.remove('active');
+            loginForm.classList.add('active');
         });
     }
 
     if (iniciarSesionBtn) {
         iniciarSesionBtn.addEventListener("click", () => {
             fondo.classList.add('active-btn');
+            loginForm.classList.add('active');
+            registerForm.classList.remove('active');
         });
     }
 
     if (iconoCerrar) {
         iconoCerrar.addEventListener("click", () => {
             fondo.classList.remove('active-btn');
-            fondo.classList.remove('active');
+            loginForm.classList.remove('active');
+            registerForm.classList.remove('active');
         });
     }
 
@@ -47,9 +53,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    loginForm.addEventListener("submit", (e) => {
+    loginForm.querySelector("form").addEventListener("submit", (e) => {
         e.preventDefault();
         window.location.href = "map.html"; // Redirigir a la página del mapa
+    });
+
+    registerForm.querySelector("form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        // Aquí puedes añadir la lógica de registro
+        console.log("Registrarse");
     });
 });
 
